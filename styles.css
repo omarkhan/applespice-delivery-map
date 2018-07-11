@@ -1,0 +1,28 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+#controls {
+  flex-grow: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+#content {
+  flex-grow: 0;
+}
+
+#map {
+  flex-grow: 1;
+}
+
+#spreadsheet_id {
+  flex-grow: 1;
+}

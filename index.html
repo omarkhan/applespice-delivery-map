@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Delivery Map</title>
+    <meta name="viewport" content="initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <link href="styles.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="controls">
+      <input id="spreadsheet_id" placeholder="Spreadsheet ID" style="display: none;"/>
+      <button id="load_button" style="display: none;">Load</button>
+      <button id="authorize_button" style="display: none;">Authorize</button>
+      <button id="signout_button" style="display: none;">Sign Out</button>
+    </div>
+    <div id="map"></div>
+    <script src="index.js" defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAuSzd8mYYeR7K-rLQfHRht5bNTvt8Gy58&callback=initMap" defer></script>
+    <script src="https://apis.google.com/js/api.js" defer onload="handleClientLoad()"></script>
+  </body>
+</html>
