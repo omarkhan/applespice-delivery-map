@@ -130,7 +130,10 @@ function mapRoutes() {
     if (result.values && result.values.length > 0) {
       const rows = ROWS.map(index => result.values[index]).filter(Boolean);
       COLUMNS.forEach((column, index) => {
-        const route = rows.map(row => row[column.index]).filter(Boolean);
+        const route = rows
+          .map(row => row[column.index])
+          .filter(Boolean)
+          .map(address => /chicago/i.test(address) ? address : `${address} Chicago`);
         displayDirections(directionsRenderers[index], ...route);
       })
     } else {
