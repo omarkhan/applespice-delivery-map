@@ -12,6 +12,9 @@ const SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly';
 // Initialize the map here
 const CHICAGO = { lat: 41.88, lng: -87.66 };
 
+// Starting point for all routes
+const ORIGIN = '610 W Roosevelt Road, Chicago';
+
 const COLUMNS = [
   { index: 0, key: 'A', color: 'blue' },
   { index: 2, key: 'C', color: 'red' },
@@ -49,14 +52,14 @@ function initMap() {
 }
 
 // eslint-ignore-next-line no-unused-vars
-function displayDirections(directionsRenderer, origin, ...route) {
+function displayDirections(directionsRenderer, route) {
   const points = [...route];
   const destination = points.pop();
   const waypoints = points.map(location => {
     return { location }
   });
   const request = {
-    origin,
+    origin: ORIGIN,
     waypoints,
     destination,
     travelMode: 'DRIVING'
@@ -134,7 +137,7 @@ function mapRoutes() {
           .map(row => row[column.index])
           .filter(Boolean)
           .map(address => /chicago/i.test(address) ? address : `${address} Chicago`);
-        displayDirections(directionsRenderers[index], ...route);
+        displayDirections(directionsRenderers[index], route);
       })
     } else {
       console.log('No data found.');
