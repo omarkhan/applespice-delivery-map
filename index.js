@@ -23,6 +23,7 @@ const COLUMNS = [
   { index: 9, key: 'J', color: 'purple' }
 ];
 const ROWS = [4, 7, 10, 13, 16, 19, 22, 25];
+const routes = COLUMNS.map(col => []);
 
 // Controls
 const authorizeButton = document.getElementById('authorize_button');
@@ -43,7 +44,6 @@ function initMap() {
     zoom: 13
   });
   directionsRenderers = COLUMNS.map(column => new google.maps.DirectionsRenderer({
-    map,
     polylineOptions: {
       strokeColor: column.color,
       strokeOpacity: 0.5
@@ -53,11 +53,14 @@ function initMap() {
 
 // eslint-ignore-next-line no-unused-vars
 function displayDirections(directionsRenderer, route) {
+  if (route.length === 0) {
+    directionsRenderer.setMap(null);
+    return;
+  }
+
   const points = [...route];
   const destination = points.pop();
-  const waypoints = points.map(location => {
-    return { location }
-  });
+  const waypoints = points.map(location => ({ location }));
   const request = {
     origin: ORIGIN,
     waypoints,
@@ -66,6 +69,7 @@ function displayDirections(directionsRenderer, route) {
   };
   directionsService.route(request, (result, status) => {
     if (status === 'OK') {
+      directionsRenderer.setMap(map);
       directionsRenderer.setDirections(result);
     }
   });
@@ -132,12 +136,16 @@ function mapRoutes() {
     const { result } = response;
     if (result.values && result.values.length > 0) {
       const rows = ROWS.map(index => result.values[index]).filter(Boolean);
-      COLUMNS.forEach((column, index) => {
-        const route = rows
-          .map(row => row[column.index])
-          .filter(Boolean)
-          .map(address => /chicago/i.test(address) ? address : `${address} Chicago`);
-        displayDirections(directionsRenderers[index], route);
+      const newRoutes = COLUMNS.map(column => rows
+        .map(row => row[column.index])
+        .filter(Boolean)
+        .map(address => /chicago/i.test(address) ? address : `${address} Chicago`)
+      );
+      newRoutes.forEach((route, index) => {
+        if (!arrayEqual(route, routes[index])) {
+          routes[index] = route;
+          displayDirections(directionsRenderers[index], route);
+        }
       })
     } else {
       console.log('No data found.');
@@ -145,4 +153,8 @@ function mapRoutes() {
   }, function(response) {
     console.error('Error: ' + response.result.error.message);
   });
+}
+
+function arrayEqual(a, b) {
+  return a.length === b.length && a.every((value, index) => b[index] === value)
 }
