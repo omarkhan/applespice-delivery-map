@@ -15,15 +15,21 @@ const CHICAGO = { lat: 41.88, lng: -87.66 };
 // Starting point for all routes
 const ORIGIN = '610 W Roosevelt Road, Chicago';
 
-const COLUMNS = [
-  { index: 0, key: 'A', color: 'blue' },
-  { index: 2, key: 'C', color: 'red' },
-  { index: 4, key: 'E', color: 'green' },
-  { index: 7, key: 'H', color: 'yellow' },
-  { index: 9, key: 'J', color: 'purple' }
+const MAIN_ROWS = [4, 7, 10, 13, 16, 19, 22, 25];
+const SECONDARY_ROWS = [29, 32];
+const SPREADSHEET_ROUTES = [
+  { colIndex: 0, col: 'A', rows: MAIN_ROWS, color: 'blue' },
+  { colIndex: 2, col: 'C', rows: MAIN_ROWS, color: 'red' },
+  { colIndex: 4, col: 'E', rows: MAIN_ROWS, color: 'green' },
+  { colIndex: 7, col: 'H', rows: MAIN_ROWS, color: 'yellow' },
+  { colIndex: 9, col: 'J', rows: MAIN_ROWS, color: 'purple' },
+  { colIndex: 0, col: 'A', rows: SECONDARY_ROWS, color: 'brown' },
+  { colIndex: 2, col: 'C', rows: SECONDARY_ROWS, color: 'pink' },
+  { colIndex: 4, col: 'E', rows: SECONDARY_ROWS, color: 'black' },
+  { colIndex: 7, col: 'H', rows: SECONDARY_ROWS, color: 'magenta' },
+  { colIndex: 9, col: 'J', rows: SECONDARY_ROWS, color: 'cyan' }
 ];
-const ROWS = [4, 7, 10, 13, 16, 19, 22, 25];
-const routes = COLUMNS.map(col => []);
+const routes = SPREADSHEET_ROUTES.map(route => []);
 
 // Controls
 const authorizeButton = document.getElementById('authorize_button');
@@ -43,9 +49,9 @@ function initMap() {
     center: CHICAGO,
     zoom: 13
   });
-  directionsRenderers = COLUMNS.map(column => new google.maps.DirectionsRenderer({
+  directionsRenderers = SPREADSHEET_ROUTES.map(route => new google.maps.DirectionsRenderer({
     polylineOptions: {
-      strokeColor: column.color,
+      strokeColor: route.color,
       strokeOpacity: 0.5
     }
   }));
@@ -128,19 +134,21 @@ function handleSignoutClick() {
 
 function mapRoutes() {
   if (!spreadsheetId) return;
-  const range = `${COLUMNS[0].key}:${COLUMNS[COLUMNS.length - 1].key}`;
+  const columns = SPREADSHEET_ROUTES.map(route => route.col).sort();
+  const range = `${columns[0]}:${columns[columns.length - 1]}`;
   gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId,
     range
-  }).then(function(response) {
+  }).then(response => {
     const { result } = response;
     if (result.values && result.values.length > 0) {
-      const rows = ROWS.map(index => result.values[index]).filter(Boolean);
-      const newRoutes = COLUMNS.map(column => rows
-        .map(row => row[column.index])
-        .filter(Boolean)
-        .map(address => /chicago/i.test(address) ? address : `${address} Chicago`)
-      );
+      const newRoutes = SPREADSHEET_ROUTES.map(route => {
+        const rows = route.rows.map(index => result.values[index]).filter(Boolean);
+        return rows
+          .map(row => row[route.colIndex])
+          .filter(Boolean)
+          .map(address => /chicago/i.test(address) ? address : `${address} Chicago`)
+      });
       newRoutes.forEach((route, index) => {
         if (!arrayEqual(route, routes[index])) {
           routes[index] = route;
@@ -150,7 +158,7 @@ function mapRoutes() {
     } else {
       console.log('No data found.');
     }
-  }, function(response) {
+  }, response => {
     console.error('Error: ' + response.result.error.message);
   });
 }
