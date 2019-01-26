@@ -15,19 +15,21 @@ const CHICAGO = { lat: 41.88, lng: -87.66 };
 // Starting point for all routes
 const ORIGIN = '610 W Roosevelt Road, Chicago';
 
-const MAIN_ROWS = [4, 7, 10, 13, 16, 19, 22, 25];
-const SECONDARY_ROWS = [29, 32];
+const MAIN_ROWS = [4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61, 64, 67, 70, 73, 76, 79, 82, 85, 88, 91, 94, 97, 100];
+const SECONDARY_ROWS = [104, 107, 110, 113];
 const SPREADSHEET_ROUTES = [
   { colIndex: 0, col: 'A', rows: MAIN_ROWS, color: 'blue' },
   { colIndex: 2, col: 'C', rows: MAIN_ROWS, color: 'red' },
   { colIndex: 4, col: 'E', rows: MAIN_ROWS, color: 'green' },
   { colIndex: 7, col: 'H', rows: MAIN_ROWS, color: 'yellow' },
   { colIndex: 9, col: 'J', rows: MAIN_ROWS, color: 'purple' },
+  { colIndex: 11, col: 'L', rows: MAIN_ROWS, color: 'aqua' },
   { colIndex: 0, col: 'A', rows: SECONDARY_ROWS, color: 'brown' },
   { colIndex: 2, col: 'C', rows: SECONDARY_ROWS, color: 'pink' },
   { colIndex: 4, col: 'E', rows: SECONDARY_ROWS, color: 'black' },
   { colIndex: 7, col: 'H', rows: SECONDARY_ROWS, color: 'magenta' },
-  { colIndex: 9, col: 'J', rows: SECONDARY_ROWS, color: 'cyan' }
+  { colIndex: 9, col: 'J', rows: SECONDARY_ROWS, color: 'cyan' },
+  { colIndex: 11, col: 'L', rows: SECONDARY_ROWS, color: 'lime' }
 ];
 const routes = SPREADSHEET_ROUTES.map(route => []);
 
