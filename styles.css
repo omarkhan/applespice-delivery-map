@@ -15,6 +15,10 @@ body {
   flex-direction: row;
 }
 
+#controls input, #controls button {
+  font-size: medium;
+}
+
 #content {
   flex-grow: 0;
 }
