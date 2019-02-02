@@ -10,7 +10,7 @@ const DISCOVERY_DOCS = ['https://sheets.googleapis.com/$discovery/rest?version=v
 const SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly';
 
 // Initialize the map here
-const CHICAGO = { lat: 41.88, lng: -87.66 };
+const START = { lat: 39.83, lng: -98.58 };
 
 const MAIN_ROWS = [4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61, 64, 67, 70, 73, 76, 79, 82, 85, 88, 91, 94, 97, 100];
 const SECONDARY_ROWS = [104, 107, 110, 113];
@@ -52,8 +52,8 @@ setInterval(mapRoutes, 60000);
 function initMap() {
   directionsService = new google.maps.DirectionsService();
   map = new google.maps.Map(document.getElementById('map'), {
-    center: CHICAGO,
-    zoom: 13
+    center: START,
+    zoom: 4
   });
   directionsRenderers = SPREADSHEET_ROUTES.map(route => new google.maps.DirectionsRenderer({
     polylineOptions: {
