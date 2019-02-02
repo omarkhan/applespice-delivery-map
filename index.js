@@ -12,9 +12,6 @@ const SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly';
 // Initialize the map here
 const CHICAGO = { lat: 41.88, lng: -87.66 };
 
-// Starting point for all routes
-const ORIGIN = '610 W Roosevelt Road, Chicago';
-
 const MAIN_ROWS = [4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61, 64, 67, 70, 73, 76, 79, 82, 85, 88, 91, 94, 97, 100];
 const SECONDARY_ROWS = [104, 107, 110, 113];
 const SPREADSHEET_ROUTES = [
@@ -37,9 +34,16 @@ const routes = SPREADSHEET_ROUTES.map(route => []);
 const authorizeButton = document.getElementById('authorize_button');
 const loadButton = document.getElementById('load_button');
 const signoutButton = document.getElementById('signout_button');
+const originInput = document.getElementById('origin');
 const spreadsheetIdInput = document.getElementById('spreadsheet_id');
 
-let directionsRenderers, directionsService, map, spreadsheetId;
+let directionsRenderers, directionsService, map, origin, spreadsheetId;
+
+// Initialize with values from localStorage
+origin = localStorage.getItem('origin');
+spreadsheetId = localStorage.getItem('spreadsheet_id');
+originInput.value = origin || '';
+spreadsheetIdInput.value = spreadsheetId || '';
 
 // Refresh routes every minute
 setInterval(mapRoutes, 60000);
@@ -70,7 +74,7 @@ function displayDirections(directionsRenderer, route) {
   const destination = points.pop();
   const waypoints = points.map(location => ({ location }));
   const request = {
-    origin: ORIGIN,
+    origin,
     waypoints,
     destination,
     travelMode: 'DRIVING'
@@ -111,18 +115,23 @@ function updateSigninStatus(isSignedIn) {
   if (isSignedIn) {
     authorizeButton.style.display = 'none';
     loadButton.style.display = 'block';
+    originInput.style.display = 'block';
     signoutButton.style.display = 'block';
     spreadsheetIdInput.style.display = 'block';
   } else {
     authorizeButton.style.display = 'block';
     loadButton.style.display = 'none';
+    originInput.style.display = 'none';
     signoutButton.style.display = 'none';
     spreadsheetIdInput.style.display = 'none';
   }
 }
 
 function handleLoadClick() {
+  origin = originInput.value.trim();
   spreadsheetId = spreadsheetIdInput.value.trim();
+  localStorage.setItem('origin', origin);
+  localStorage.setItem('spreadsheet_id', spreadsheetId);
   mapRoutes();
 }
 
@@ -135,7 +144,7 @@ function handleSignoutClick() {
 }
 
 function mapRoutes() {
-  if (!spreadsheetId) return;
+  if (!origin || !spreadsheetId) return;
   const columns = SPREADSHEET_ROUTES.map(route => route.col).sort();
   const range = `${columns[0]}:${columns[columns.length - 1]}`;
   gapi.client.sheets.spreadsheets.values.get({

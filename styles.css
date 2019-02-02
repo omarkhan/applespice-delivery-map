@@ -23,6 +23,10 @@ body {
   flex-grow: 1;
 }
 
+#origin {
+  flex-grow: 1;
+}
+
 #spreadsheet_id {
   flex-grow: 1;
 }
