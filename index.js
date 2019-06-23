@@ -12,21 +12,17 @@ const SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly';
 // Initialize the map here
 const START = { lat: 39.83, lng: -98.58 };
 
-const MAIN_ROWS = [4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61, 64, 67, 70, 73, 76, 79, 82, 85, 88, 91, 94, 97, 100];
-const SECONDARY_ROWS = [104, 107, 110, 113];
+// Spreadsheet layout
+const FIRST_ROW = 3;
+const ROW_INTERVAL = 3;
+const COLUMN_RANGE = 'A:Y';
 const SPREADSHEET_ROUTES = [
-  { colIndex: 0, col: 'A', rows: MAIN_ROWS, color: 'blue' },
-  { colIndex: 2, col: 'C', rows: MAIN_ROWS, color: 'red' },
-  { colIndex: 4, col: 'E', rows: MAIN_ROWS, color: 'green' },
-  { colIndex: 7, col: 'H', rows: MAIN_ROWS, color: 'yellow' },
-  { colIndex: 9, col: 'J', rows: MAIN_ROWS, color: 'purple' },
-  { colIndex: 11, col: 'L', rows: MAIN_ROWS, color: 'aqua' },
-  { colIndex: 0, col: 'A', rows: SECONDARY_ROWS, color: 'brown' },
-  { colIndex: 2, col: 'C', rows: SECONDARY_ROWS, color: 'pink' },
-  { colIndex: 4, col: 'E', rows: SECONDARY_ROWS, color: 'black' },
-  { colIndex: 7, col: 'H', rows: SECONDARY_ROWS, color: 'magenta' },
-  { colIndex: 9, col: 'J', rows: SECONDARY_ROWS, color: 'cyan' },
-  { colIndex: 11, col: 'L', rows: SECONDARY_ROWS, color: 'lime' }
+  { column: 0, color: 'blue' },
+  { column: 4, color: 'red' },
+  { column: 8, color: 'green' },
+  { column: 13, color: 'yellow' },
+  { column: 17, color: 'purple' },
+  { column: 21, color: 'aqua' }
 ];
 const routes = SPREADSHEET_ROUTES.map(route => []);
 
@@ -145,20 +141,23 @@ function handleSignoutClick() {
 
 function mapRoutes() {
   if (!origin || !spreadsheetId) return;
-  const columns = SPREADSHEET_ROUTES.map(route => route.col).sort();
-  const range = `${columns[0]}:${columns[columns.length - 1]}`;
   gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId,
-    range
+    range: COLUMN_RANGE
   }).then(response => {
     const { result } = response;
     if (result.values && result.values.length > 0) {
       const newRoutes = SPREADSHEET_ROUTES.map(route => {
-        const rows = route.rows.map(index => result.values[index]).filter(Boolean);
-        return rows
-          .map(row => row[route.colIndex])
-          .filter(Boolean)
-          .map(address => /chicago/i.test(address) ? address : `${address} Chicago`)
+        const addresses = [];
+        for (let i = FIRST_ROW; i < result.values.length; i += ROW_INTERVAL) {
+          const row = result.values[i];
+          const address = row[route.column];
+          if (!address) continue;
+          addresses.push(/chicago/i.test(address) ? address : `${address} Chicago`);
+          const returnToStore = result.values[i - 1][route.column + 3] // return to store checkbox
+          if (returnToStore === 'TRUE') addresses.push(origin);
+        }
+        return addresses;
       });
       newRoutes.forEach((route, index) => {
         if (!arrayEqual(route, routes[index])) {
